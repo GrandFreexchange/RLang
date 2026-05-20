@@ -20,6 +20,7 @@ function App() {
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [toasts, setToasts] = useState([]);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   useEffect(() => {
     const init = async () => {
@@ -81,7 +82,7 @@ function App() {
   };
 
   const gradeCard = (quality) => {
-    if (!isFlipped || !currentCard || !activeDeck) return;
+    if (!isFlipped || !currentCard || !activeDeck || isTransitioning) return;
 
     const originalLevel = currentCard.level || 0;
     let newLevel = originalLevel;
@@ -108,7 +109,13 @@ function App() {
     if (quality === 1 && newLevel < 3) {
       newQueue.push(updatedCard);
     }
-    nextCard(newQueue);
+
+    setIsTransitioning(true);
+    setIsFlipped(false);
+    setTimeout(() => {
+      nextCard(newQueue);
+      setIsTransitioning(false);
+    }, 600);
   };
 
   const speakRussian = (e, text) => {
@@ -124,7 +131,7 @@ function App() {
 
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (mode !== 'study' || !currentCard || document.activeElement.tagName === 'INPUT') return;
+      if (mode !== 'study' || !currentCard || document.activeElement.tagName === 'INPUT' || isTransitioning) return;
       if (e.code === 'Space') {
         e.preventDefault();
         setIsFlipped(prev => !prev);
@@ -139,7 +146,7 @@ function App() {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [mode, currentCard, isFlipped, studyQueue]);
+  }, [mode, currentCard, isFlipped, studyQueue, isTransitioning]);
 
   // --- Deck Management ---
   const handleCreateDeck = (name) => {
@@ -226,7 +233,7 @@ function App() {
             <Flashcard 
               card={currentCard} 
               isFlipped={isFlipped}
-              onFlip={() => setIsFlipped(prev => !prev)}
+              onFlip={isTransitioning ? undefined : () => setIsFlipped(prev => !prev)}
               remaining={studyQueue.length + 1}
               onGrade={gradeCard}
               onSpeak={speakRussian}
