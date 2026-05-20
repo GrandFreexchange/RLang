@@ -42,7 +42,7 @@ export default function Flashcard({ card, isFlipped, onFlip, remaining, onGrade,
           className="flip-card"
           animate={{ rotateY: isFlipped ? 180 : 0 }}
           transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
-          onClick={!isFlipped ? onFlip : undefined}
+          onClick={onFlip}
           drag={isFlipped ? true : false}
           dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
           onDragEnd={handleDragEnd}

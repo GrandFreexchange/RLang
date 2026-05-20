@@ -127,7 +127,7 @@ function App() {
       if (mode !== 'study' || !currentCard || document.activeElement.tagName === 'INPUT') return;
       if (e.code === 'Space') {
         e.preventDefault();
-        setIsFlipped(true);
+        setIsFlipped(prev => !prev);
       } else if (e.code === 'KeyA') {
         e.preventDefault();
         speakRussian(null, currentCard.ru);
@@ -226,7 +226,7 @@ function App() {
             <Flashcard 
               card={currentCard} 
               isFlipped={isFlipped}
-              onFlip={() => setIsFlipped(true)}
+              onFlip={() => setIsFlipped(prev => !prev)}
               remaining={studyQueue.length + 1}
               onGrade={gradeCard}
               onSpeak={speakRussian}
