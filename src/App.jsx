@@ -106,16 +106,30 @@ function App() {
     setSessionStats(s => ({ reviewed: s.reviewed + 1 }));
 
     let newQueue = [...studyQueue];
-    if (quality === 1 && newLevel < 3) {
-      newQueue.push(updatedCard);
-    }
+    if (quality === 1) {
+      // Reschedule for later in the session, but don't duplicate
+      if (newLevel < 3 && !newQueue.some(c => c.ru === updatedCard.ru)) {
+        newQueue.push(updatedCard);
+      }
+      setStudyQueue(newQueue);
 
-    setIsTransitioning(true);
-    setIsFlipped(false);
-    setTimeout(() => {
-      nextCard(newQueue);
-      setIsTransitioning(false);
-    }, 600);
+      // Flip back to the front so they can retry it immediately
+      setIsTransitioning(true);
+      setIsFlipped(false);
+      setTimeout(() => {
+        setIsTransitioning(false);
+      }, 600);
+      
+      addToast('Card marked for review. Try again!', 'info');
+    } else {
+      // Good or Easy: advance to the next card
+      setIsTransitioning(true);
+      setIsFlipped(false);
+      setTimeout(() => {
+        nextCard(newQueue);
+        setIsTransitioning(false);
+      }, 600);
+    }
   };
 
   const speakRussian = (e, text) => {
