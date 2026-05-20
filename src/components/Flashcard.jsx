@@ -1,8 +1,8 @@
 import React from 'react';
 import { Volume2, MousePointerClick } from 'lucide-react';
-import { motion, useAnimation } from 'framer-motion';
+import { motion } from 'framer-motion';
 
-export default function Flashcard({ card, isFlipped, onFlip, remaining, onGrade }) {
+export default function Flashcard({ card, isFlipped, onFlip, remaining, onGrade, onSpeak }) {
   const isNew = (card.level || 0) === 0;
   const levelLabel = isNew ? 'New Card' : ['Learning', 'Reviewing', 'Mastered'][card.level - 1];
   
@@ -11,17 +11,6 @@ export default function Flashcard({ card, isFlipped, onFlip, remaining, onGrade 
     if (card.level === 1) return 'var(--accent-orange)';
     if (card.level === 2) return 'var(--accent-blue)';
     return 'var(--accent-green)';
-  };
-
-  const speakRussian = (e, text) => {
-    e.stopPropagation();
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'ru-RU';
-      utterance.rate = 0.85;
-      window.speechSynthesis.speak(utterance);
-    }
   };
 
   // Swiping logic
@@ -50,7 +39,9 @@ export default function Flashcard({ card, isFlipped, onFlip, remaining, onGrade 
 
       <div className="perspective">
         <motion.div 
-          className={`flip-card ${isFlipped ? 'flipped' : ''}`}
+          className="flip-card"
+          animate={{ rotateY: isFlipped ? 180 : 0 }}
+          transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
           onClick={!isFlipped ? onFlip : undefined}
           drag={isFlipped ? true : false}
           dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
@@ -59,8 +50,9 @@ export default function Flashcard({ card, isFlipped, onFlip, remaining, onGrade 
           <div className="flip-card-face flip-card-front">
             <button 
               className="btn-icon" 
-              style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: 'var(--surface-2)', border: '1px solid var(--card-border)', color: 'var(--text-main)' }}
-              onClick={(e) => speakRussian(e, card.ru)}
+              style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: 'var(--surface-2)', border: '1px solid var(--card-border)', color: 'var(--text-main)', cursor: 'pointer' }}
+              onClick={(e) => onSpeak(e, card.ru)}
+              title="Listen (Press A)"
             >
               <Volume2 size={24} />
             </button>

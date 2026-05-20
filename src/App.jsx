@@ -111,12 +111,26 @@ function App() {
     nextCard(newQueue);
   };
 
+  const speakRussian = (e, text) => {
+    if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'ru-RU';
+      utterance.rate = 0.85;
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (mode !== 'study' || !currentCard || document.activeElement.tagName === 'INPUT') return;
       if (e.code === 'Space') {
         e.preventDefault();
         setIsFlipped(true);
+      } else if (e.code === 'KeyA') {
+        e.preventDefault();
+        speakRussian(null, currentCard.ru);
       } else if (isFlipped) {
         if (e.code === 'Digit1' || e.code === 'Numpad1') { e.preventDefault(); gradeCard(1); }
         else if (e.code === 'Digit2' || e.code === 'Numpad2') { e.preventDefault(); gradeCard(2); }
@@ -215,6 +229,7 @@ function App() {
               onFlip={() => setIsFlipped(true)}
               remaining={studyQueue.length + 1}
               onGrade={gradeCard}
+              onSpeak={speakRussian}
             />
           )
         ) : (
